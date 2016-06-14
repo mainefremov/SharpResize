@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 
 namespace SharpResize
 {
@@ -15,9 +16,8 @@ namespace SharpResize
 		/// <returns> опи€ изображени€ с измененными размерами.</returns>
 		public static Bitmap Resize(this Bitmap inputBitmap, int finalSizeX, int finalSizeY)
 		{
-			var resizeEngine = new SharpResizeEngine();
 			var planes = inputBitmap.ReadBitmap();
-			var resizedData = resizeEngine.Resize(planes, finalSizeX, finalSizeY);
+			var resizedData = SharpResizeEngine.Resize(planes, finalSizeX, finalSizeY);
 			return resizedData.ToBitmap(inputBitmap.PixelFormat);
 		}
 
@@ -51,7 +51,7 @@ namespace SharpResize
 				var widthInBytes = widthInPixels * bpp;
 				var firstPtr = (byte*) data.Scan0;
 
-				for (var rowIndex = 0; rowIndex < heightInPixels; rowIndex++)
+				Parallel.For(0, heightInPixels, rowIndex =>
 				{
 					var rowPtr = firstPtr + rowIndex * data.Stride;
 					var columnIndex = 0;
@@ -63,8 +63,8 @@ namespace SharpResize
 						resultBitmap[2][columnIndex, rowIndex] = byteToDouble[rowPtr[x]];
 						columnIndex++;
 					}
-				}
-
+				});
+				
 				inputBitmap.UnlockBits(data);
 			}
 

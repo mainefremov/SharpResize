@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace SharpResize
 {
@@ -21,11 +22,14 @@ namespace SharpResize
 		/// <param name="targetSizeX">Ширина результата.</param>
 		/// <param name="targetSizeY">Высота результата.</param>
 		/// <returns>Массивы с измененным размером.</returns>
-		public double[][,] Resize(double[][,] input, int targetSizeX, int targetSizeY)
+		public static double[][,] Resize(double[][,] input, int targetSizeX, int targetSizeY)
 		{
 			var result = new double[input.Length][,];
-			for (var i = 0; i < input.Length; i++)
-				result[i] = Resize(input[i], targetSizeX, targetSizeY);
+
+			Parallel.For(0, input.Length, i =>
+			{
+				result[i] = (new SharpResizeEngine()).Resize(input[i], targetSizeX, targetSizeY);
+			});
 
 			return result;
 		}
