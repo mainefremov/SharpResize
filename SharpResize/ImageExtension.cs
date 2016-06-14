@@ -48,7 +48,7 @@ namespace SharpResize
 			{
 				var data = inputBitmap.LockBits(new Rectangle(0, 0, widthInPixels, heightInPixels), ImageLockMode.ReadOnly, format);
 				var bpp = Image.GetPixelFormatSize(format) / 8;
-				var widthInBytes = heightInPixels * bpp;
+				var widthInBytes = widthInPixels * bpp;
 				var firstPtr = (byte*) data.Scan0;
 
 				for (var rowIndex = 0; rowIndex < heightInPixels; rowIndex++)
