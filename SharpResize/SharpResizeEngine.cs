@@ -384,13 +384,13 @@ namespace SharpResize
 			{
 				case 3:
 					z = new double[1];
-					z[0] = Math.Sqrt(3D) - 2D;
+					z[0] = -0.26794919243112D;
 					break;
 
 				case 5:
 					z = new double[2];
-					z[0] = (Math.Sqrt(67.5D - Math.Sqrt(4436.25D)) + Math.Sqrt(26.25D)) - 6.5D;
-					z[1] = Math.Sqrt(67.5D + Math.Sqrt(4436.25D)) - Math.Sqrt(26.25D) - 6.5D;
+					z[0] = -0.430575347099977D;
+					z[1] = -0.0430962882032997D;
 					break;
 
 				default:
