@@ -25,11 +25,12 @@ namespace SharpResize
 		public static double[][,] Resize(double[][,] input, int targetSizeX, int targetSizeY)
 		{
 			var result = new double[input.Length][,];
+			var engine = new SharpResizeEngine();
 
-			Parallel.For(0, input.Length, i =>
+			for(var i = 0; i < input.Length; i++)
 			{
-				result[i] = (new SharpResizeEngine()).Resize(input[i], targetSizeX, targetSizeY);
-			});
+				result[i] = engine.Resize(input[i], targetSizeX, targetSizeY);
+			}
 
 			return result;
 		}
@@ -60,9 +61,10 @@ namespace SharpResize
 			_indexMinHeight = new int[finalTotalHeight];
 			_indexMaxHeight = new int[finalTotalHeight];
 			var lengthArraySplnHeight = finalTotalHeight * (2 + totalDegree);
-			var i = 0;
 			var factHeight = Math.Pow(zoomY, _analyDegree + 1);
 			_splineArrayHeight = new double[lengthArraySplnHeight];
+
+			var i = 0;
 			for (var l = 0; l < finalTotalHeight; l++)
 			{
 				var affineIndex = l / zoomY;
@@ -83,9 +85,10 @@ namespace SharpResize
 			_indexMinWidth = new int[finalTotalWidth];
 			_indexMaxWidth = new int[finalTotalWidth];
 			var lengthArraySplnWidth = finalTotalWidth * (2 + totalDegree);
-			i = 0;
 			var factWidth = Math.Pow(zoomX, _analyDegree + 1);
 			_splineArrayWidth = new double[lengthArraySplnWidth];
+
+			i = 0;
 			for (var l = 0; l < finalTotalWidth; l++)
 			{
 				var affineIndex = l / zoomX;
@@ -98,21 +101,17 @@ namespace SharpResize
 				}
 			}
 
-			var outputColumn = new double[targetSizeY];
-			var outputRow = new double[targetSizeX];
-			var workingRow = new double[input.GetLength(0)];
-			var workingColumn = new double[input.GetLength(1)];
-			var addVectorHeight = new double[lengthTotalHeight];
-			var addOutputVectorHeight = new double[finalTotalHeight];
-			var addVectorWidth = new double[lengthTotalWidth];
-			var addOutputVectorWidth = new double[finalTotalWidth];
-			var periodColumnSym = 2 * input.GetLength(1) - 2;
-			var periodRowSym = 2 * input.GetLength(0) - 2;
 			var image = new double[targetSizeX, input.GetLength(1)];
 			var output = new double[targetSizeX, targetSizeY];
 
-			for (var y = 0; y < input.GetLength(1); y++)
+			Parallel.For(0, input.GetLength(1), y =>
 			{
+				var outputRow = new double[targetSizeX];
+				var workingRow = new double[input.GetLength(0)];
+				var addVectorWidth = new double[lengthTotalWidth];
+				var addOutputVectorWidth = new double[finalTotalWidth];
+				var periodRowSym = 2 * input.GetLength(0) - 2;
+
 				for (var x = 0; x < workingRow.Length; x++)
 					workingRow[x] = input[x, y];
 
@@ -121,10 +120,16 @@ namespace SharpResize
 
 				for (var x = 0; x < outputRow.Length; x++)
 					image[x, y] = outputRow[x];
-			}
-
-			for (var x = 0; x < targetSizeX; x++)
+			});
+			
+			Parallel.For(0, targetSizeX, x =>
 			{
+				var outputColumn = new double[targetSizeY];
+				var workingColumn = new double[input.GetLength(1)];
+				var addVectorHeight = new double[lengthTotalHeight];
+				var addOutputVectorHeight = new double[finalTotalHeight];
+				var periodColumnSym = 2 * input.GetLength(1) - 2;
+
 				for (var y = 0; y < workingColumn.Length; y++)
 					workingColumn[y] = image[x, y];
 
@@ -133,7 +138,7 @@ namespace SharpResize
 
 				for (var y = 0; y < outputColumn.Length; y++)
 					output[x, y] = outputColumn[y];
-			}
+			});
 
 			return output;
 		}
